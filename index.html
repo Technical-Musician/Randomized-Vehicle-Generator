@@ -376,15 +376,15 @@
         };
 
         const mainArmaments = {
-            MBT: ["120mm smoothbore gun", "125mm smoothbore gun", "105mm rifled gun", "140mm experimental gun"],
-            HeavyTank: ["120mm gun", "122mm gun", "152mm gun", "183mm gun"],
-            MediumTank: ["75mm gun", "76mm gun", "85mm gun", "90mm gun", "105mm gun"],
-            LightTank: ["76mm gun", "90mm gun", "105mm gun", "30mm autocannon", "40mm autocannon"],
-            IFV: ["30mm autocannon", "40mm autocannon", "25mm autocannon", "100mm low-pressure gun"],
+            MBT: { min: 75, max: 140 },
+            HeavyTank: { min: 88, max: 152 },
+            MediumTank: { min: 75, max: 100 },
+            LightTank: { min: 20, max: 76 },
+            IFV: { min: 20, max: 40},
             APC: ["12.7mm HMG", "7.62mm MG", "14.5mm HMG", "40mm AGL", "20mm autocannon"],
             Helicopter: ["30mm chain gun", "20mm cannon", "70mm rocket pods", "ATGMs", "Air-to-air missiles"],
             Plane: ["20mm rotary cannon", "30mm cannon", "Bombs", "Air-to-ground missiles", "Air-to-air missiles"],
-            SPG: ["155mm howitzer", "152mm howitzer", "203mm howitzer", "105mm howitzer"]
+            SPG: { min: 105, max: 203 },
         };
 
         const secondaryWeapons = {
@@ -452,17 +452,14 @@
 
         // Additional vehicle features
         const atgmOptions = {
-            Modern: ["Javelin", "TOW", "Kornet", "Spike", "Hellfire"],
-            ColdWar: ["MILAN", "TOW", "Sagger", "Swatter", "Hot"],
+            Modern: ["Javelin", "TOW", "Kornet", "Spike", "Hellfire", "None", "None", "None", "None", "None"],
+            ColdWar: ["MILAN", "TOW", "Sagger", "Swatter", "Hot", "None", "None", "None", "None", "None" ],
             WW2: ["None", "Rocket launchers", "Experimental guided missiles"],
             Interwar: ["None"],
             WW1: ["None"],
             PreWW1: ["None"],
             NearFuture: ["Smart ATGMs", "Laser-guided", "Fire-and-forget"],
             FarFuture: ["Plasma missiles", "Gravity projectors", "Energy weapons"],
-            Steampunk: ["Steam-powered rockets", "Clockwork missiles"],
-            Cyberpunk: ["Smart missiles", "Cyber-enhanced targeting"],
-            Fantasy: ["Magic missiles", "Elemental projectiles"]
         };
 
         const autoloaderTypes = {
@@ -470,10 +467,10 @@
             HeavyTank: ["None (manual loading)"],
             MediumTank: ["None (manual loading)", "Early autoloader"],
             LightTank: ["None (manual loading)", "Autoloader"],
-            IFV: ["Autoloader", "None (manual loading)"],
+            IFV: ["Auto-feed", "None (manual loading)"],
             APC: ["None"],
-            Helicopter: ["Autoloader for rockets/missiles", "None"],
-            Plane: ["Autoloader for weapons", "None"],
+            Helicopter: ["Auto-feed", "None"],
+            Plane: ["Autofeed for weapons", "None"],
             SPG: ["Autoloader", "None (manual loading)"]
         };
 
@@ -557,21 +554,89 @@
 
         // Function to generate a vehicle name
         function generateVehicleName(faction, classType, rarity) {
-            const manufacturers = manufacturerNames[faction] || manufacturerNames.Western;
-            const manufacturer = getRandomItem(manufacturers);
+            const factionPrefixes = modelPrefixes[faction] || modelPrefixes.Western;
+            const prefixes = factionPrefixes[classType] || ["M", "X"];
             
             // Model designations based on class and rarity
-            const modelPrefixes = {
-                MBT: ["M1", "T-", "Leopard", "Challenger", "Type"],
-                HeavyTank: ["T-", "IS-", "M", "Tiger", "KV-"],
-                MediumTank: ["T-", "M", "Panther", "Sherman", "Centurion"],
-                LightTank: ["M", "Type", "AMX", "Scorpion", "Stingray"],
-                IFV: ["M", "BMP", "Warrior", "Bradley", "Puma"],
-                APC: ["M", "BTR", "Stryker", "FV", "Type"],
-                Helicopter: ["AH-", "Mi-", "UH-", "Ka-", "Apache"],
-                Plane: ["F-", "Su-", "MiG-", "A-", "B-"],
-                SPG: ["M", "2S", "PzH", "Type", "AS-"]
-            };
+const modelPrefixes = {
+    Western: {
+        MBT: ["M1", "Leopard", "Challenger", "Leclerc", "Ariete"],
+        HeavyTank: ["M", "Conqueror", "M103", "Centurion"],
+        MediumTank: ["M", "Sherman", "Centurion", "Patton"],
+        LightTank: ["M", "Stingray", "Scorpion", "AMX"],
+        IFV: ["M", "Bradley", "Warrior", "Puma", "CV90"],
+        APC: ["M", "Stryker", "LAV", "M113", "Boxer"],
+        Helicopter: ["AH-", "UH-", "CH-", "OH-", "Apache", "Black Hawk"],
+        Plane: ["F-", "A-", "B-", "C-", "E-", "AV-"],
+        SPG: ["M", "PzH", "AS-", "Archer"]
+    },
+    Soviet: {
+        MBT: ["T-", "T-14", "T-90", "T-80", "T-72"],
+        HeavyTank: ["T-", "IS-", "KV-", "Object"],
+        MediumTank: ["T-", "T-54/55", "T-62"],
+        LightTank: ["PT-", "2S", "BMP", "BMD"],
+        IFV: ["BMP-", "BMD-", "Kurganets"],
+        APC: ["BTR-", "MT-LB", "BTR-D"],
+        Helicopter: ["Mi-", "Ka-", "Mi-24", "Mi-28", "Ka-52"],
+        Plane: ["Su-", "MiG-", "Tu-", "Il-", "Yak-"],
+        SPG: ["2S", "BM-", "2A"]
+    },
+    Asian: {
+        MBT: ["Type 99", "Type 96", "Type 90", "K2", "Arjun"],
+        HeavyTank: ["Type", "Chi-", "O-I"],
+        MediumTank: ["Type", "Chi-", "ST"],
+        LightTank: ["Type", "ZBD", "K21"],
+        IFV: ["Type", "ZBD", "K21"],
+        APC: ["Type", "ZSL", "K200"],
+        Helicopter: ["Z-", "Mi-", "AH-", "MD "],
+        Plane: ["J-", "FC-", "KF-", "Tejas"],
+        SPG: ["Type", "PLZ", "K9"]
+    },
+    MiddleEastern: {
+        MBT: ["T-", "M1", "Leopard", "Karrar", "Al-Khalid"],
+        HeavyTank: ["T-", "Chieftain"],
+        MediumTank: ["T-", "M", "Centurion"],
+        LightTank: ["BMP", "BTR", "M"],
+        IFV: ["BMP", "BTR", "AIFV"],
+        APC: ["BTR", "M113", "Fahd"],
+        Helicopter: ["Mi-", "AH-", "SA"],
+        Plane: ["F-", "MiG-", "Su-", "Kowsar"],
+        SPG: ["2S", "M", "MA"]
+    },
+    African: {
+        MBT: ["T-", "M1", "Leopard", "Olifant"],
+        HeavyTank: ["T-", "Centurion"],
+        MediumTank: ["T-", "M", "Centurion"],
+        LightTank: ["BMP", "BTR", "M"],
+        IFV: ["BMP", "Ratel", "M"],
+        APC: ["BTR", "Mamba", "Casspir"],
+        Helicopter: ["Mi-", "SA", "AW"],
+        Plane: ["MiG-", "J-", "Kfir"],
+        SPG: ["G6", "M", "2S"]
+    },
+    SouthAmerican: {
+        MBT: ["Leopard", "M1", "T-", "EE-T1"],
+        HeavyTank: ["M", "Sherman"],
+        MediumTank: ["M", "Sherman", "T-"],
+        LightTank: ["EE-", "M", "AML"],
+        IFV: ["EE-", "M", "URUTU"],
+        APC: ["EE-", "M", "Cascavel"],
+        Helicopter: ["UH-", "Mi-", "SA"],
+        Plane: ["A-", "F-", "EMB"],
+        SPG: ["M", "ASTROS"]
+    },
+    Mercenary: {
+        MBT: ["M1", "T-", "Leopard", "Challenger"],
+        HeavyTank: ["M", "T-", "IS-"],
+        MediumTank: ["M", "T-", "Centurion"],
+        LightTank: ["M", "BMP", "Scorpion"],
+        IFV: ["M", "BMP", "Warrior"],
+        APC: ["M", "BTR", "Stryker"],
+        Helicopter: ["Mi-", "AH-", "UH-"],
+        Plane: ["F-", "Su-", "MiG-"],
+        SPG: ["M", "2S", "PzH"]
+    }
+};
             
             const prefixes = modelPrefixes[classType] || ["M", "X"];
             const prefix = getRandomItem(prefixes);
@@ -676,13 +741,13 @@
             text += `CREW SIZE: ${vehicleData.crewSize}\n`;
             text += `MAX SPEED: ${vehicleData.maxSpeed} km/h\n`;
             text += `OPERATIONAL RANGE: ${vehicleData.operationalRange} km\n`;
-            text += `MAIN ARMAMENT: ${vehicleData.mainArmament}\n`;
+            text += `MAIN ARMAMENT: ${vehicleData.mainArmament}mm\n`;
             text += `SECONDARY WEAPONS: ${vehicleData.secondaryWeapons}\n`;
             text += `ARMOR TYPE: ${vehicleData.armorType}\n`;
             text += `PROPULSION: ${vehicleData.propulsionType}\n`;
             text += `AUTOLOADER: ${vehicleData.autoloader}\n`;
             text += `ATGM SYSTEM: ${vehicleData.atgmSystem}\n`;
-            text += `PAYLOAD CAPACITY: ${vehicleData.payloadCapacity}\n`;
+            text += `PAYLOAD CAPACITY: ${vehicleData.payloadCapacity}lbs\n`;
             text += `SENSOR SYSTEMS: ${vehicleData.sensorSystems}\n`;
             text += `DESCRIPTION: ${vehicleData.description}`;
             
@@ -829,10 +894,10 @@
             const armorType = getRandomItem(armorTypes[era]);
             const propulsionType = getRandomItem(propulsionTypes[vehicleClass]);
             const mainArmament = getRandomItem(mainArmaments[vehicleClass]);
-            const secondaryWeapons = getRandomItem(secondaryWeapons[vehicleClass]);
+            const coaxialWeapons = getRandomItem(secondaryWeapons[vehicleClass]);
             const autoloader = getRandomItem(autoloaderTypes[vehicleClass]);
             const atgmSystem = getRandomItem(atgmOptions[era]);
-            const sensorSystems = getRandomItem(sensorSystems[era]);
+            const sensors = getRandomItem(sensorSystems[era]);
             
             // Generate description if enabled
             const enableDescriptions = document.getElementById('enableDescriptions').checked;
@@ -854,12 +919,12 @@
                 operationalRange,
                 payloadCapacity,
                 mainArmament,
-                secondaryWeapons,
+                secondaryWeapons: coaxialWeapons,
                 armorType,
                 propulsionType,
                 autoloader,
                 atgmSystem,
-                sensorSystems,
+                sensorSystems:sensors,
                 description
             };
             
