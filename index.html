@@ -375,17 +375,38 @@
             SPG: ["Diesel engine", "Multi-fuel engine", "Gas turbine"]
         };
 
-        const mainArmaments = {
-            MBT: ["120mm smoothbore gun", "125mm smoothbore gun", "105mm rifled gun", "140mm experimental gun"],
-            HeavyTank: ["120mm gun", "122mm gun", "152mm gun", "183mm gun"],
-            MediumTank: ["75mm gun", "76mm gun", "85mm gun", "90mm gun", "105mm gun"],
-            LightTank: ["76mm gun", "90mm gun", "105mm gun", "30mm autocannon", "40mm autocannon"],
-            IFV: ["30mm autocannon", "40mm autocannon", "25mm autocannon", "100mm low-pressure gun"],
-            APC: ["12.7mm HMG", "7.62mm MG", "14.5mm HMG", "40mm AGL", "20mm autocannon"],
-            Helicopter: ["30mm chain gun", "20mm cannon", "70mm rocket pods", "ATGMs", "Air-to-air missiles"],
-            Plane: ["20mm rotary cannon", "30mm cannon", "Bombs", "Air-to-ground missiles", "Air-to-air missiles"],
-            SPG: ["155mm howitzer", "152mm howitzer", "203mm howitzer", "105mm howitzer"]
-        };
+const mainArmaments = {
+    MBT: { min: 105, max: 140 },
+    HeavyTank: { min: 120, max: 183 },
+    MediumTank: { min: 75, max: 105 },
+    LightTank: { min: 30, max: 105 },
+    IFV: { min: 25, max: 100 },
+    APC: { min: 7.62, max: 40 },
+    Helicopter: { min: 20, max: 70 },
+    Plane: { min: 20, max: 30 },
+    SPG: { min: 105, max: 203 }
+};
+
+// Function to generate main armament
+function generateMainArmament(classType) {
+    const limits = mainArmaments[classType];
+    const caliber = getRandomInRange(limits.min, limits.max, 1);
+    
+    // Add appropriate suffix based on vehicle class
+    if (classType === "Helicopter") {
+        const weapons = ["chain gun", "cannon", "rocket pods", "ATGMs", "air-to-air missiles"];
+        return `${caliber}mm ${getRandomItem(weapons)}`;
+    } else if (classType === "Plane") {
+        const weapons = ["rotary cannon", "cannon", "bombs", "air-to-ground missiles", "air-to-air missiles"];
+        return `${caliber}mm ${getRandomItem(weapons)}`;
+    } else if (classType === "APC") {
+        const weapons = ["HMG", "MG", "AGL", "autocannon"];
+        return `${caliber}mm ${getRandomItem(weapons)}`;
+    } else {
+        const types = ["smoothbore gun", "rifled gun", "gun", "howitzer", "low-pressure gun"];
+        return `${caliber}mm ${getRandomItem(types)}`;
+    }
+}
 
         const secondaryWeapons = {
             MBT: ["7.62mm coaxial MG", "12.7mm AA HMG", "7.62mm bow MG", "40mm AGL", "Smoke grenade launchers"],
@@ -828,7 +849,7 @@
             const payloadCapacity = generatePayloadCapacity(vehicleClass);
             const armorType = getRandomItem(armorTypes[era]);
             const propulsionType = getRandomItem(propulsionTypes[vehicleClass]);
-            const mainArmament = getRandomItem(mainArmaments[vehicleClass]);
+            const mainArmament = generateMainArmament(vehicleClass);
             const coaxialWeapons = getRandomItem(secondaryWeapons[vehicleClass]);
             const autoloader = getRandomItem(autoloaderTypes[vehicleClass]);
             const atgmSystem = getRandomItem(atgmOptions[era]);
