@@ -9,7 +9,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
             text-align: center;
-            background-color: #121212;
+            background-color: #586325;
             color: #f0f0f0;
             max-width: 1200px;
             margin: 0 auto;
@@ -48,7 +48,7 @@
         .result-panel {
             flex: 2;
             min-width: 300px;
-            background-color: #1a1a1a;
+            background-color: #A5BA45;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
@@ -594,32 +594,124 @@ function generateMainArmament(classType) {
             const manufacturers = manufacturerNames[faction] || manufacturerNames.Western;
             const manufacturer = getRandomItem(manufacturers);
             
-            // Model designations based on class and rarity
-            const modelPrefixes = {
-                MBT: ["M1", "T-", "Leopard", "Challenger", "Type"],
-                HeavyTank: ["T-", "IS-", "M", "Tiger", "KV-"],
-                MediumTank: ["T-", "M", "Panther", "Sherman", "Centurion"],
-                LightTank: ["M", "Type", "AMX", "Scorpion", "Stingray"],
-                IFV: ["M", "BMP", "Warrior", "Bradley", "Puma"],
-                APC: ["M", "BTR", "Stryker", "FV", "Type"],
-                Helicopter: ["AH-", "Mi-", "UH-", "Ka-", "Apache"],
-                Plane: ["F-", "Su-", "MiG-", "A-", "B-"],
-                SPG: ["M", "2S", "PzH", "Type", "AS-"]
+            // Model designations based on faction and class
+            const factionModelPrefixes = {
+                Western: {
+                    MBT: ["M1", "Leopard", "Challenger", "Merkava", "Ariete"],
+                    HeavyTank: ["M", "T", "Mk.", "FV"],
+                    MediumTank: ["M", "Centurion", "Vickers", "Patton"],
+                    LightTank: ["M", "FV", "AMX", "Scorpion"],
+                    IFV: ["M2", "Warrior", "CV90", "ASCOD", "Puma"],
+                    APC: ["M113", "Stryker", "VAB", "Boxer", "Piranha"],
+                    Helicopter: ["AH-", "UH-", "CH-", "MH-", "OH-"],
+                    Plane: ["F-", "A-", "B-", "C-", "E-"],
+                    SPG: ["M", "AS90", "PzH", "CAESAR"]
+                },
+                Soviet: {
+                    MBT: ["T-", "Object ", "IS-"],
+                    HeavyTank: ["KV-", "IS-", "Object "],
+                    MediumTank: ["T-", "Object "],
+                    LightTank: ["PT-", "T-", "Object "],
+                    IFV: ["BMP-", "BTR-", "BMD-"],
+                    APC: ["BTR-", "MT-", "GAZ-"],
+                    Helicopter: ["Mi-", "Ka-"],
+                    Plane: ["Su-", "MiG-", "Tu-", "Il-", "Yak-"],
+                    SPG: ["2S", "Object ", "SU-"]
+                },
+                Asian: {
+                    MBT: ["Type ", "K", "Al-Khalid ", "Altay "],
+                    HeavyTank: ["Type ", "K"],
+                    MediumTank: ["Type ", "K"],
+                    LightTank: ["Type ", "K", "WZ-"],
+                    IFV: ["Type ", "K21", "WZ-"],
+                    APC: ["Type ", "WZ-", "K-"],
+                    Helicopter: ["Z-", "HAL ", "KAI "],
+                    Plane: ["J-", "JF-", "FC-", "HAL ", "KAI "],
+                    SPG: ["Type ", "K9", "PLZ-"]
+                },
+                MiddleEastern: {
+                    MBT: ["Al-", "Zulfiqar ", "Karrar "],
+                    HeavyTank: ["Al-"],
+                    MediumTank: ["Al-"],
+                    LightTank: ["Al-"],
+                    IFV: ["Sanad ", "Al-"],
+                    APC: ["Fahd ", "Al-", "Rabdan "],
+                    Helicopter: ["IAIO "],
+                    Plane: ["Qaher-", "Shafaq-"],
+                    SPG: ["Thunder "]
+                },
+                African: {
+                    MBT: ["Olifant ", "Rooikat "],
+                    HeavyTank: ["M-"],
+                    MediumTank: ["M-"],
+                    LightTank: ["M-"],
+                    IFV: ["Ratel ", "ST-"],
+                    APC: ["Mamba ", "Ratel ", "ST-"],
+                    Helicopter: ["Atlas "],
+                    Plane: ["Atlas ", "Impala "],
+                    SPG: ["G-"]
+                },
+                SouthAmerican: {
+                    MBT: ["TAM ", "EE-", "EC-"],
+                    HeavyTank: ["EE-"],
+                    MediumTank: ["EE-"],
+                    LightTank: ["EE-"],
+                    IFV: ["VCTP ", "EE-"],
+                    APC: ["EE-", "TAMSE "],
+                    Helicopter: ["HA-"],
+                    Plane: ["FMA ", "EMB-"],
+                    SPG: ["VCA "]
+                },
+                Mercenary: {
+                    MBT: ["PMC-", "X-", "M-"],
+                    HeavyTank: ["HT-", "X-"],
+                    MediumTank: ["MT-", "X-"],
+                    LightTank: ["LT-", "X-"],
+                    IFV: ["IFV-", "X-"],
+                    APC: ["APC-", "X-"],
+                    Helicopter: ["H-", "X-"],
+                    Plane: ["A-", "X-"],
+                    SPG: ["SPG-", "X-"]
+                }
             };
+
+            // Get the appropriate prefixes for the faction and class, or use Western as fallback
+            const factionPrefixes = factionModelPrefixes[faction]?.[classType] || factionModelPrefixes.Western[classType];
+            const prefix = getRandomItem(factionPrefixes);
             
-            const prefixes = modelPrefixes[classType] || ["M", "X"];
-            const prefix = getRandomItem(prefixes);
-            
-            // Different numbering based on rarity
+            // Different numbering schemes based on faction
             let modelNumber;
-            switch(rarity) {
-                case "Common": modelNumber = Math.floor(Math.random() * 100) + 1; break;
-                case "Uncommon": modelNumber = Math.floor(Math.random() * 50) + 100; break;
-                case "Rare": modelNumber = Math.floor(Math.random() * 20) + 200; break;
-                case "Elite": modelNumber = Math.floor(Math.random() * 10) + 300; break;
-                case "Legendary": modelNumber = Math.floor(Math.random() * 5) + 400; break;
-                case "Artifact": modelNumber = "Ancient"; break;
-                default: modelNumber = Math.floor(Math.random() * 100) + 1;
+            switch(faction) {
+                case "Western":
+                    // Western tends to use lower numbers (1-120)
+                    modelNumber = Math.floor(Math.random() * 120) + 1;
+                    break;
+                case "Soviet":
+                    // Soviet/Russian tends to use larger numbers (60-90 for tanks, 8-35 for aircraft)
+                    if (classType.includes("Tank") || classType === "IFV" || classType === "APC") {
+                        modelNumber = Math.floor(Math.random() * 30) + 60;
+                    } else {
+                        modelNumber = Math.floor(Math.random() * 27) + 8;
+                    }
+                    break;
+                case "Asian":
+                    // Asian (particularly Chinese) tends to use years or large numbers (88, 96, 99, etc.)
+                    modelNumber = Math.floor(Math.random() * 20) + 85;
+                    break;
+                case "Mercenary":
+                    // Mercenary/Private uses modern numbering (2000+)
+                    modelNumber = Math.floor(Math.random() * 100) + 2000;
+                    break;
+                default:
+                    // Others use standard numbering
+                    modelNumber = Math.floor(Math.random() * 200) + 1;
+            }
+            
+            // Adjust based on rarity
+            if (rarity === "Legendary" || rarity === "Elite") {
+                modelNumber = `${modelNumber}A`;
+            } else if (rarity === "Artifact") {
+                modelNumber = `${modelNumber}X`;
             }
             
             return `${manufacturer} ${prefix}${modelNumber}`;
