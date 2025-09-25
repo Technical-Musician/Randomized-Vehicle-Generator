@@ -389,22 +389,35 @@ const mainArmaments = {
 
 // Function to generate main armament
 function generateMainArmament(classType) {
-    const limits = mainArmaments[classType];
-    const caliber = getRandomInRange(limits.min, limits.max, 1);
-    
-    // Add appropriate suffix based on vehicle class
     if (classType === "Helicopter") {
-        const weapons = ["chain gun", "cannon", "rocket pods", "ATGMs", "air-to-air missiles"];
-        return `${caliber}mm ${getRandomItem(weapons)}`;
-    } else if (classType === "Plane") {
-        const weapons = ["rotary cannon", "cannon", "bombs", "air-to-ground missiles", "air-to-air missiles"];
-        return `${caliber}mm ${getRandomItem(weapons)}`;
-    } else if (classType === "APC") {
-        const weapons = ["HMG", "MG", "AGL", "autocannon"];
-        return `${caliber}mm ${getRandomItem(weapons)}`;
+        // Define different weapon types with their own caliber ranges
+        const weaponTypes = {
+            "chain gun": { min: 20, max: 30 },
+            "cannon": { min: 25, max: 40 },
+            "rocket pods": { min: 57, max: 80 }, // Standard helicopter rocket sizes
+            "ATGMs": { min: 100, max: 152 }, // Typical ATGM diameters
+            "air-to-air missiles": { min: 70, max: 127 } // Common air-to-air missile sizes
+        };
+
+        const selectedWeapon = getRandomItem(Object.keys(weaponTypes));
+        const limits = weaponTypes[selectedWeapon];
+        const caliber = getRandomInRange(limits.min, limits.max, 1);
+        
+        return `${caliber}mm ${selectedWeapon}`;
     } else {
-        const types = ["smoothbore gun", "rifled gun", "gun", "howitzer", "low-pressure gun"];
-        return `${caliber}mm ${getRandomItem(types)}`;
+        const limits = mainArmaments[classType];
+        const caliber = getRandomInRange(limits.min, limits.max, 1);
+        
+        if (classType === "Plane") {
+            const weapons = ["rotary cannon", "cannon", "bombs", "air-to-ground missiles", "air-to-air missiles"];
+            return `${caliber}mm ${getRandomItem(weapons)}`;
+        } else if (classType === "APC") {
+            const weapons = ["HMG", "MG", "AGL", "autocannon"];
+            return `${caliber}mm ${getRandomItem(weapons)}`;
+        } else {
+            const types = ["smoothbore gun", "rifled gun", "gun", "howitzer", "low-pressure gun"];
+            return `${caliber}mm ${getRandomItem(types)}`;
+        }
     }
 }
 
