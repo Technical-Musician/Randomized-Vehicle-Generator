@@ -3,179 +3,962 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Military Vehicle Generator</title>
+    <title>Glockodile's Vehicle Generator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
             text-align: center;
             background-color: #121212;
             color: #f0f0f0;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         h1 {
             font-size: 36px;
+            margin-bottom: 10px;
+            color: #e0e0e0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
 
-        select, button {
-            padding: 10px 20px;
-            font-size: 18px;
-            margin-top: 20px;
-            margin-bottom: 20px;
+        .subtitle {
+            font-size: 16px;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .generator-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .result-panel {
+            flex: 2;
+            min-width: 300px;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-align: left;
+        }
+
+        select, button, input {
+            padding: 10px 15px;
+            font-size: 16px;
+            margin: 10px 5px;
             background-color: #333;
             color: #f0f0f0;
             border: none;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        #vehicle-loadout {
-            margin-top: 30px;
-            font-size: 22px;
+        button {
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .generate-btn {
+            background-color: #4CAF50;
+        }
+
+        .randomize-btn {
+            background-color: #2196F3;
+        }
+
+        .export-btn {
+            background-color: #FF9800;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        #vehicleDetails {
+            margin-top: 20px;
+            font-size: 18px;
             line-height: 1.6;
         }
 
-        img {
+        .vehicle-card {
+            background-color: #252525;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .vehicle-name {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .vehicle-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        .vehicle-image {
             width: 100%;
-            max-width: 400px;
+            height: 200px;
+            background-color: #333;
+            border-radius: 5px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-style: italic;
+        }
+
+        .vehicle-description {
+            margin-top: 15px;
+            font-style: italic;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        .history-panel {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .history-item {
+            background-color: #252525;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .history-item:hover {
+            background-color: #2a2a2a;
+        }
+
+        .tab-container {
+            margin-top: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #444;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #2a2a2a;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background-color: #333;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: #1a1a1a;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tab-content.active {
             display: block;
-            margin: 20px auto;
         }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .export-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
 
-        li {
-            padding: 5px 0;
+        .export-options button {
+            flex: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .generator-container {
+                flex-direction: column;
+            }
+            
+            .vehicle-stats {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Glockodile's Random Military Vehicle Generator</h1>
+    <h1>Glockodile's Vehicle Generator</h1>
+    <div class="subtitle">Create detailed vehicles for your stuff i guess</div>
 
-    <img src="assets/vehicles.gif" alt="Military Vehicles GIF">
+    <div class="generator-container">
+        <div class="control-panel">
+            <label for="vehicleClass">Vehicle Class:</label>
+            <select id="vehicleClass">
+                <option value="MBT">Main Battle Tank (MBT)</option>
+                <option value="HeavyTank">Heavy Tank</option>
+                <option value="MediumTank">Medium Tank</option>
+                <option value="LightTank">Light Tank</option>
+                <option value="IFV">Infantry Fighting Vehicle (IFV)</option>
+                <option value="APC">Armored Personnel Carrier (APC)</option>
+                <option value="Helicopter">Helicopter</option>
+                <option value="Plane">Plane</option>
+                <option value="SPG">Self-Propelled Gun (SPG)</option>
+            </select>
 
-    <label for="faction">Choose Faction:</label>
-    <br>
-    <select id="faction">
-        <option value="Western">Western</option>
-        <option value="Soviet">Soviet/Russian</option>
-        <option value="All">All Factions</option>
-    </select>
-    <br>
+            <label for="eraSelect">Era/Technology Level:</label>
+            <select id="eraSelect">
+                <option value="Modern">Modern (2000-Present)</option>
+                <option value="ColdWar">Cold War (1947-1991)</option>
+                <option value="WW2">World War II (1939-1945)</option>
+                <option value="Interwar">Interwar (1918-1939)</option>
+                <option value="WW1">World War I (1914-1918)</option>
+                <option value="PreWW1">Pre-WWI (Before 1914)</option>
+                <option value="NearFuture">Near Future (2025-2040)</option>
+                <option value="FarFuture">Far Future (2040+)</option>
+            </select>
 
-    <label for="vehicle-class">Choose Vehicle Class:</label>
-    <br>
-    <select id="vehicle-class">
-        <option value="Tank">Tank</option>
-        <option value="IFV">IFV</option>
-        <option value="APC">APC</option>
-        <option value="Car">Car</option>
-    </select>
-    <br>
+            <label for="factionSelect">Faction/Origin:</label>
+            <select id="factionSelect">
+                <option value="Western">Western</option>
+                <option value="Soviet">Soviet/Russian</option>
+                <option value="Asian">Asian</option>
+                <option value="MiddleEastern">Middle Eastern</option>
+                <option value="African">African</option>
+                <option value="SouthAmerican">South American</option>
+                <option value="Mercenary">Mercenary/Non-State</option>
+            </select>
 
-    <button onclick="generateVehicleLoadout()">Generate Vehicle Loadout</button>
+            <label for="raritySelect">Rarity/Quality:</label>
+            <select id="raritySelect">
+                <option value="Common">Common/Mass Produced</option>
+                <option value="Uncommon">Uncommon/Standard Issue</option>
+                <option value="Rare">Rare/Specialized</option>
+                <option value="Elite">Elite/Prototype</option>
+                <option value="Legendary">Legendary/One-of-a-Kind</option>
+                <option value="Artifact">Artifact/Ancient</option>
+            </select>
 
-    <div id="vehicle-loadout"></div>
+            <label for="vehicleName">Custom Name (Optional):</label>
+            <input type="text" id="vehicleName" placeholder="Enter a custom name for your vehicle">
 
-    <img src="assets/rizz.gif" alt="Military Vehicles GIF">
-    
+            <button class="generate-btn" onclick="generateVehicle()">Generate Vehicle</button>
+            <button class="randomize-btn" onclick="randomizeAll()">Randomize All</button>
+            <button class="export-btn" onclick="showExportOptions()">Export Vehicle</button>
+        </div>
+
+        <div class="result-panel">
+            <div id="vehicleDetails">
+                <p>Select options and click "Generate Vehicle" to create your custom vehicle.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('history')">Generation History</div>
+            <div class="tab" onclick="switchTab('export')">Export Options</div>
+            <div class="tab" onclick="switchTab('settings')">Generator Settings</div>
+        </div>
+        
+        <div id="history-tab" class="tab-content active">
+            <h3>Recently Generated Vehicles</h3>
+            <div id="vehicleHistory"></div>
+        </div>
+        
+        <div id="export-tab" class="tab-content">
+            <h3>Export Your Vehicle</h3>
+            <p>Choose how you'd like to export your vehicle data:</p>
+            <div class="export-options">
+                <button onclick="exportAsText()">Export as Text</button>
+                <button onclick="exportAsJSON()">Export as JSON</button>
+                <button onclick="generateVehicleCard()">Generate Vehicle Card</button>
+            </div>
+            <div id="exportResult"></div>
+        </div>
+        
+        <div id="settings-tab" class="tab-content">
+            <h3>Generator Settings</h3>
+            <label>
+                <input type="checkbox" id="enableDescriptions" checked> 
+                Generate detailed descriptions
+            </label>
+            <br>
+            <label>
+                <input type="checkbox" id="enableHistory" checked> 
+                Save generation history
+            </label>
+            <br>
+            <label>
+                <input type="range" id="detailLevel" min="1" max="5" value="3">
+                Detail Level: <span id="detailLevelValue">3</span>
+            </label>
+        </div>
+    </div>
+
     <script>
-        const primaryWeapons = {
-            Western: {
-                Tank: ["M256 120mm Gun", "L44 120mm Gun", "M58 105mm Gun", "M3 90mm", "L7 105mm", "M3 75mm", "M1 76mm"],
-                IFV: ["M242 Bushmaster 25mm", "Mk44 30mm Chain Gun", "Rheinmetall MK 20", "Oerkilon 20mm", "40mm Bofors"],
-                APC: [".50 cal M2 Browning", "Mk 19 Grenade Launcher", "20mm M61 Vulcan"],
-                Car: ["M240 MG", "M2 Browning MG", "Mk 19 Grenade Launcher"]
-            },
-            Soviet: {
-                Tank: ["2A46 125mm Gun", "D-81 125mm Gun", "2A82-1M 125mm Gun", "D-10T 100mm", " 85mm ZIS-S-53", "122mm D-25T"],
-                IFV: ["2A42 30mm Cannon", "Shipunov 2A72 30mm", "2A38M 30mm", "23mm 2A14 x1", "23mm 2A14 x2", "23mm 2A14 x4"],
-                APC: ["AGS-17 30mm AGL", "KPVT 14.5mm", "NSV 12.7mm MG"],
-                Car: ["PKM 7.62mm MG", "NSV 12.7mm MG", "AGS-30 AGL"]
-            }
+        // Vehicle attributes for world-building
+        const armorTypes = {
+            Modern: ["Composite armor", "Reactive armor", "Modular armor", "Spaced armor", "Electric armor"],
+            ColdWar: ["Rolled homogeneous armor", "Cast armor", "Spaced armor", "Composite armor (early)"],
+            WW2: ["Rolled homogeneous armor", "Cast armor", "Face-hardened armor", "Spaced armor"],
+            Interwar: ["Rolled homogeneous armor", "Face-hardened armor", "Riveted armor"],
+            WW1: ["Rolled homogeneous armor", "Boiler plate", "Riveted armor"],
+            PreWW1: ["Boiler plate", "Riveted iron", "Wooden reinforcement"],
+            NearFuture: ["Nano-crystalline armor", "Electromagnetic armor", "Adaptive armor", "Self-repairing armor"],
+            FarFuture: ["Energy shielding", "Molecular armor", "Phase-shifting armor", "Biological armor"],
+            Steampunk: ["Brass plating", "Reinforced wood", "Steam-powered armor", "Gear-driven defense"],
+            Cyberpunk: ["Composite plating", "Smart armor", "Reactive nano-coating", "Cyber-enhanced defense"],
+            Fantasy: ["Enchanted metal", "Dragon scale", "Stone golem", "Magic barrier"]
+        };
+
+        const propulsionTypes = {
+            MBT: ["Diesel engine", "Gas turbine", "Multi-fuel engine", "Hybrid-electric", "Fuel cell"],
+            HeavyTank: ["Diesel engine", "Gasoline engine", "Multi-fuel engine", "Steam engine"],
+            MediumTank: ["Diesel engine", "Gasoline engine", "Multi-fuel engine"],
+            LightTank: ["Diesel engine", "Gasoline engine", "Hybrid-electric", "Fuel cell"],
+            IFV: ["Diesel engine", "Multi-fuel engine", "Hybrid-electric"],
+            APC: ["Diesel engine", "Gasoline engine", "Multi-fuel engine"],
+            Helicopter: ["Turboshaft engine", "Piston engine", "Hybrid-electric", "Ducted fan"],
+            Plane: ["Turbofan engine", "Turboprop engine", "Piston engine", "Ramjet", "Scramjet"],
+            SPG: ["Diesel engine", "Multi-fuel engine", "Gas turbine"]
+        };
+
+        const mainArmaments = {
+            MBT: ["120mm smoothbore gun", "125mm smoothbore gun", "105mm rifled gun", "140mm experimental gun"],
+            HeavyTank: ["120mm gun", "122mm gun", "152mm gun", "183mm gun"],
+            MediumTank: ["75mm gun", "76mm gun", "85mm gun", "90mm gun", "105mm gun"],
+            LightTank: ["76mm gun", "90mm gun", "105mm gun", "30mm autocannon", "40mm autocannon"],
+            IFV: ["30mm autocannon", "40mm autocannon", "25mm autocannon", "100mm low-pressure gun"],
+            APC: ["12.7mm HMG", "7.62mm MG", "14.5mm HMG", "40mm AGL", "20mm autocannon"],
+            Helicopter: ["30mm chain gun", "20mm cannon", "70mm rocket pods", "ATGMs", "Air-to-air missiles"],
+            Plane: ["20mm rotary cannon", "30mm cannon", "Bombs", "Air-to-ground missiles", "Air-to-air missiles"],
+            SPG: ["155mm howitzer", "152mm howitzer", "203mm howitzer", "105mm howitzer"]
         };
 
         const secondaryWeapons = {
-            Western: {
-                Tank: ["M240 Coaxial MG", "M2 Browning MG", "FN MAG 7.62mm MG"],
-                IFV: ["M240 MG", "TOW ATGM", "Spike ATGM"],
-                APC: ["M240 MG", "Mk 19 AGL", "M2 Browning MG"],
-                Car: ["M60 MG", "M240 MG", "Mk 19 AGL"]
-            },
-            Soviet: {
-                Tank: ["PKT Coaxial MG", "NSVT 12.7mm MG", "DShK MG"],
-                IFV: ["PKT MG", "9k14 Malyutka ATGM", "9M133 Kornet ATGM"],
-                APC: ["PKM MG", "AGS-17 AGL", "NSV 12.7mm MG"],
-                Car: ["PKM MG", "NSV 12.7mm MG", "AGS-30 AGL"]
-            }
+            MBT: ["7.62mm coaxial MG", "12.7mm AA HMG", "7.62mm bow MG", "40mm AGL", "Smoke grenade launchers"],
+            HeavyTank: ["7.62mm coaxial MG", "12.7mm AA HMG", "7.62mm bow MG", "Smoke grenade launchers"],
+            MediumTank: ["7.62mm coaxial MG", "12.7mm AA HMG", "7.62mm bow MG", "Smoke grenade launchers"],
+            LightTank: ["7.62mm coaxial MG", "12.7mm AA HMG", "40mm AGL", "Smoke grenade launchers"],
+            IFV: ["7.62mm coaxial MG", "ATGMs", "40mm AGL", "Smoke grenade launchers"],
+            APC: ["7.62mm MG", "12.7mm HMG", "40mm AGL", "Smoke grenade launchers"],
+            Helicopter: ["7.62mm door guns", "70mm rocket pods", "Air-to-air missiles", "Flare/Chaff dispensers"],
+            Plane: ["Air-to-air missiles", "Air-to-ground missiles", "Bombs", "Flares/Chaff"],
+            SPG: ["7.62mm MG", "12.7mm AA HMG", "Smoke grenade launchers"]
         };
 
-        const additionalAttributes = {
-            Tank: ["Hull MG", "Reactive Armor", "Thermals", "Night Vision", "Active Protection System", "Smoke Grenades"],
-            IFV: ["Smoke Grenades", "Port Holes", "APS"],
-            APC: ["Smoke Grenades", "Open Topped", "Enclosed Hull"],
-            Car: ["Additional Armor", "Open Turret", "CROWS"]
+        const crewSizes = {
+            MBT: { min: 3, max: 4 },
+            HeavyTank: { min: 4, max: 6 },
+            MediumTank: { min: 4, max: 5 },
+            LightTank: { min: 3, max: 4 },
+            IFV: { min: 3, max: 9 },
+            APC: { min: 2, max: 12 },
+            Helicopter: { min: 1, max: 4 },
+            Plane: { min: 1, max: 2 },
+            SPG: { min: 4, max: 6 }
         };
 
-        const ammoTypes = {
-            Tank: ["APFSDS", "HEATFS", "HEAT", "A-PERS", "HE", "HESH", "APBC", "APHEBC", "APHECBC", "APCBC"],
-            IFV: ["AP", "APHE", "APFSDS", "HE"],
-            APC: ["AP", "HE"],
-            Car: ["AP", "HE"]
+        // Vehicle weight ranges in tons
+        const vehicleWeights = {
+            MBT: { min: 45, max: 70 },
+            HeavyTank: { min: 50, max: 80 },
+            MediumTank: { min: 30, max: 50 },
+            LightTank: { min: 15, max: 30 },
+            IFV: { min: 20, max: 40 },
+            APC: { min: 10, max: 25 },
+            Helicopter: { min: 3, max: 15 },
+            Plane: { min: 5, max: 25 },
+            SPG: { min: 25, max: 50 }
         };
 
-        const engineTypes = ["Diesel Engine", "Turbine Engine", "Hybrid Engine"];
-
-        const mobilityTypes = {
-            Tank: ["Tracked"],
-            IFV: ["Tracked", "Wheeled"],
-            APC: ["Wheeled", "Tracked"],
-            Car: ["Wheeled"]
+        // Speed ranges in km/h
+        const maxSpeeds = {
+            MBT: { min: 60, max: 80 },
+            HeavyTank: { min: 35, max: 55 },
+            MediumTank: { min: 45, max: 65 },
+            LightTank: { min: 70, max: 90 },
+            IFV: { min: 65, max: 85 },
+            APC: { min: 70, max: 100 },
+            Helicopter: { min: 250, max: 350 },
+            Plane: { min: 700, max: 2500 },
+            SPG: { min: 50, max: 70 }
         };
 
-        const vehicleNames = {
-            Western: {
-                Tank: ["M1 Abrams", "Challenger 2", "Leopard 2"],
-                IFV: ["Bradley", "Warrior", "CV90"],
-                APC: ["Stryker", "LAV-25", "Boxer"],
-                Car: ["Humvee", "Oshkosh JLTV", "Caiman MRAP"]
-            },
-            Soviet: {
-                Tank: ["T-72", "T-80", "T-90"],
-                IFV: ["BMP-3", "BMD-4", "Kurganets-25"],
-                APC: ["BTR-80", "BTR-90", "Bumerang"],
-                Car: ["Tigr", "GAZ-2975", "KamAZ Typhoon"]
-            }
+        // Range in km
+        const operationalRanges = {
+            MBT: { min: 400, max: 600 },
+            HeavyTank: { min: 200, max: 400 },
+            MediumTank: { min: 300, max: 500 },
+            LightTank: { min: 500, max: 800 },
+            IFV: { min: 500, max: 700 },
+            APC: { min: 600, max: 1000 },
+            Helicopter: { min: 400, max: 800 },
+            Plane: { min: 1500, max: 5000 },
+            SPG: { min: 300, max: 500 }
         };
 
+        // Additional vehicle features
+        const atgmOptions = {
+            Modern: ["Javelin", "TOW", "Kornet", "Spike", "Hellfire"],
+            ColdWar: ["MILAN", "TOW", "Sagger", "Swatter", "Hot"],
+            WW2: ["None", "Rocket launchers", "Experimental guided missiles"],
+            Interwar: ["None"],
+            WW1: ["None"],
+            PreWW1: ["None"],
+            NearFuture: ["Smart ATGMs", "Laser-guided", "Fire-and-forget"],
+            FarFuture: ["Plasma missiles", "Gravity projectors", "Energy weapons"],
+            Steampunk: ["Steam-powered rockets", "Clockwork missiles"],
+            Cyberpunk: ["Smart missiles", "Cyber-enhanced targeting"],
+            Fantasy: ["Magic missiles", "Elemental projectiles"]
+        };
+
+        const autoloaderTypes = {
+            MBT: ["Carousel autoloader", "Bustle autoloader", "None (manual loading)"],
+            HeavyTank: ["None (manual loading)"],
+            MediumTank: ["None (manual loading)", "Early autoloader"],
+            LightTank: ["None (manual loading)", "Autoloader"],
+            IFV: ["Autoloader", "None (manual loading)"],
+            APC: ["None"],
+            Helicopter: ["Autoloader for rockets/missiles", "None"],
+            Plane: ["Autoloader for weapons", "None"],
+            SPG: ["Autoloader", "None (manual loading)"]
+        };
+
+        const payloadCapacities = {
+            Helicopter: { min: 1000, max: 5000 }, // kg
+            Plane: { min: 2000, max: 20000 } // kg
+        };
+
+        const sensorSystems = {
+            Modern: ["Thermal imagers", "Laser rangefinders", "GPS navigation", "Battlefield management systems"],
+            ColdWar: ["Night vision", "Laser rangefinders", "Basic fire control systems"],
+            WW2: ["Optical rangefinders", "Basic night vision", "Radio communication"],
+            Interwar: ["Optical sights", "Basic radio"],
+            WW1: ["Optical sights", "Signal flags"],
+            PreWW1: ["Iron sights", "No electronic systems"],
+            NearFuture: ["Advanced sensors", "AI-assisted targeting", "Drone integration"],
+            FarFuture: ["Neural interfaces", "Holographic displays", "Quantum sensors"],
+            Steampunk: ["Brass telescopes", "Steam-powered calculators", "Clockwork targeting"],
+            Cyberpunk: ["Cyberware interfaces", "Augmented reality", "Neural links"],
+            Fantasy: ["Crystal balls", "Divine guidance", "Magic sensors"]
+        };
+
+        const manufacturerNames = {
+            Western: ["General Dynamics", "BAE Systems", "Rheinmetall", "Lockheed Martin", "Boeing", "Raytheon"],
+            Soviet: ["Uralvagonzavod", "Kurganmashzavod", "KAMAZ", "Mil Moscow Helicopter Plant", "Sukhoi"],
+            Asian: ["Norinco", "Hyundai Rotem", "Mitsubishi", "Hindustan Aeronautics", "KAI"],
+            MiddleEastern: ["Military Industry Corporation", "Defense Industries Organization", "Jordan Design and Development Bureau"],
+            African: ["Denel", "NIROP", "PRIDE", "Military Industry Corporation of Ethiopia"],
+            SouthAmerican: ["IMBEL", "FAMAE", "DGFM", "Indumil"],
+            Mercenary: ["Valkyrie Dynamics", "Aegis Armaments", "Cerberus Tactical", "Phoenix Group", "Blackwater Industries"],
+            Corporate: ["OmniCorp", "Weyland-Yutani", "Tyrell Corporation", "UAC", "Manticore Industries"],
+            Alien: ["Xenotech", "Vorlon Industries", "Asgard Systems", "Prothean Foundry", "Forerunner Fabrication"],
+            FantasyRace: ["Dwarven Forge", "Elven Crafters", "Orcish Smiths", "Gnomish Inventors", "Draconic Artisans"]
+        };
+
+        // Vehicle history storage
+        let vehicleHistory = [];
+
+        // Function to get a random item from an array
         function getRandomItem(arr) {
             return arr[Math.floor(Math.random() * arr.length)];
         }
 
-        function generateVehicleLoadout() {
-            const faction = document.getElementById("faction").value;
-            const vehicleClass = document.getElementById("vehicle-class").value;
+        // Function to generate random number within range
+        function getRandomInRange(min, max, decimals = 1) {
+            return (Math.random() * (max - min) + min).toFixed(decimals);
+        }
 
-            const primaryWeapon = getRandomItem(faction === "All" ? primaryWeapons.Western[vehicleClass].concat(primaryWeapons.Soviet[vehicleClass]) : primaryWeapons[faction][vehicleClass]);
-            const secondaryWeapon = getRandomItem(faction === "All" ? secondaryWeapons.Western[vehicleClass].concat(secondaryWeapons.Soviet[vehicleClass]) : secondaryWeapons[faction][vehicleClass]);
-            const engineType = getRandomItem(engineTypes);
-            const mobility = getRandomItem(mobilityTypes[vehicleClass]);
-            const ammoType = getRandomItem(ammoTypes[vehicleClass]);  // Renamed from 'ammotype'
-            const additional = getRandomItem(additionalAttributes[vehicleClass]);  // Renamed from 'additional'
+        // Function to generate crew size
+        function generateCrewSize(classType) {
+            const limits = crewSizes[classType];
+            return Math.floor(Math.random() * (limits.max - limits.min) + limits.min);
+        }
 
-            document.getElementById("vehicle-loadout").innerHTML = `
-                <h2>Your ${faction === "All" ? "Mixed Faction" : faction} ${vehicleClass} Loadout:</h2>
-                <ul>
-                    <li><strong>Primary Weapon:</strong> ${primaryWeapon}</li>
-                    <li><strong>Secondary Weapon:</strong> ${secondaryWeapon}</li>
-                    <li><strong>Ammo:</strong> ${ammoType}</li>
-                    <li><strong>Engine Type:</strong> ${engineType}</li>
-                    <li><strong>Mobility:</strong> ${mobility}</li>
-                    <li><strong>Extra Attribute:</strong> ${additional}</li>
-                </ul>
+        // Function to generate vehicle weight
+        function generateVehicleWeight(classType) {
+            const limits = vehicleWeights[classType];
+            return getRandomInRange(limits.min, limits.max, 1);
+        }
+
+        // Function to generate max speed
+        function generateMaxSpeed(classType) {
+            const limits = maxSpeeds[classType];
+            return Math.floor(Math.random() * (limits.max - limits.min) + limits.min);
+        }
+
+        // Function to generate operational range
+        function generateOperationalRange(classType) {
+            const limits = operationalRanges[classType];
+            return Math.floor(Math.random() * (limits.max - limits.min) + limits.min);
+        }
+
+        // Function to generate payload capacity (for aircraft)
+        function generatePayloadCapacity(classType) {
+            if (payloadCapacities[classType]) {
+                const limits = payloadCapacities[classType];
+                return Math.floor(Math.random() * (limits.max - limits.min) + limits.min);
+            }
+            return "N/A";
+        }
+
+        // Function to generate a vehicle name
+        function generateVehicleName(faction, classType, rarity) {
+            const manufacturers = manufacturerNames[faction] || manufacturerNames.Western;
+            const manufacturer = getRandomItem(manufacturers);
+            
+            // Model designations based on class and rarity
+            const modelPrefixes = {
+                MBT: ["M1", "T-", "Leopard", "Challenger", "Type"],
+                HeavyTank: ["T-", "IS-", "M", "Tiger", "KV-"],
+                MediumTank: ["T-", "M", "Panther", "Sherman", "Centurion"],
+                LightTank: ["M", "Type", "AMX", "Scorpion", "Stingray"],
+                IFV: ["M", "BMP", "Warrior", "Bradley", "Puma"],
+                APC: ["M", "BTR", "Stryker", "FV", "Type"],
+                Helicopter: ["AH-", "Mi-", "UH-", "Ka-", "Apache"],
+                Plane: ["F-", "Su-", "MiG-", "A-", "B-"],
+                SPG: ["M", "2S", "PzH", "Type", "AS-"]
+            };
+            
+            const prefixes = modelPrefixes[classType] || ["M", "X"];
+            const prefix = getRandomItem(prefixes);
+            
+            // Different numbering based on rarity
+            let modelNumber;
+            switch(rarity) {
+                case "Common": modelNumber = Math.floor(Math.random() * 100) + 1; break;
+                case "Uncommon": modelNumber = Math.floor(Math.random() * 50) + 100; break;
+                case "Rare": modelNumber = Math.floor(Math.random() * 20) + 200; break;
+                case "Elite": modelNumber = Math.floor(Math.random() * 10) + 300; break;
+                case "Legendary": modelNumber = Math.floor(Math.random() * 5) + 400; break;
+                case "Artifact": modelNumber = "Ancient"; break;
+                default: modelNumber = Math.floor(Math.random() * 100) + 1;
+            }
+            
+            return `${manufacturer} ${prefix}${modelNumber}`;
+        }
+
+        // Function to generate a vehicle description
+        function generateVehicleDescription(vehicleData) {
+            const { name, class: classType, weight, maxSpeed, operationalRange, crewSize, era, rarity, faction } = vehicleData;
+            
+            const eraDescriptions = {
+                Modern: "A contemporary vehicle designed for modern combat scenarios",
+                ColdWar: "A relic from the tense standoff between superpowers",
+                WW2: "A historic vehicle that saw action in the great war",
+                Interwar: "A transitional design from between the world wars",
+                WW1: "An antique vehicle from the dawn of modern warfare",
+                PreWW1: "A primitive vehicle from before the great war",
+                NearFuture: "An advanced vehicle incorporating near-future technology",
+                FarFuture: "A highly advanced vehicle using technology beyond current understanding",
+                Steampunk: "A fantastical vehicle powered by steam and clockwork",
+                Cyberpunk: "A high-tech vehicle enhanced with cybernetic interfaces",
+                Fantasy: "A magical vehicle crafted through arcane means"
+            };
+            
+            const rarityDescriptions = {
+                Common: "commonly found",
+                Uncommon: "uncommonly encountered",
+                Rare: "a rare find",
+                Elite: "an elite vehicle",
+                Legendary: "a legendary artifact",
+                Artifact: "an ancient artifact"
+            };
+            
+            const classDescriptions = {
+                MBT: "main battle tank",
+                HeavyTank: "heavy tank",
+                MediumTank: "medium tank",
+                LightTank: "light tank",
+                IFV: "infantry fighting vehicle",
+                APC: "armored personnel carrier",
+                Helicopter: "helicopter",
+                Plane: "plane",
+                SPG: "self-propelled gun"
+            };
+            
+            return `${eraDescriptions[era]}, the ${name} is ${rarityDescriptions[rarity]} ${classDescriptions[classType]} weighing ${weight} tons. ` +
+                   `With a top speed of ${maxSpeed} km/h and an operational range of ${operationalRange} km, it requires a crew of ${crewSize}. ` +
+                   `This ${faction} design exemplifies the technological level and tactical philosophy of its origin.`;
+        }
+
+        // Function to switch between tabs
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Add active class to the clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Function to show export options
+        function showExportOptions() {
+            switchTab('export');
+        }
+
+        // Function to export vehicle as text
+        function exportAsText() {
+            const vehicleData = getCurrentVehicleData();
+            if (!vehicleData) {
+                document.getElementById('exportResult').innerHTML = "<p>No vehicle data to export. Generate a vehicle first.</p>";
+                return;
+            }
+            
+            let text = `VEHICLE: ${vehicleData.name}\n`;
+            text += `CLASS: ${vehicleData.class}\n`;
+            text += `ERA: ${vehicleData.era}\n`;
+            text += `FACTION: ${vehicleData.faction}\n`;
+            text += `RARITY: ${vehicleData.rarity}\n`;
+            text += `WEIGHT: ${vehicleData.weight} tons\n`;
+            text += `CREW SIZE: ${vehicleData.crewSize}\n`;
+            text += `MAX SPEED: ${vehicleData.maxSpeed} km/h\n`;
+            text += `OPERATIONAL RANGE: ${vehicleData.operationalRange} km\n`;
+            text += `MAIN ARMAMENT: ${vehicleData.mainArmament}\n`;
+            text += `SECONDARY WEAPONS: ${vehicleData.secondaryWeapons}\n`;
+            text += `ARMOR TYPE: ${vehicleData.armorType}\n`;
+            text += `PROPULSION: ${vehicleData.propulsionType}\n`;
+            text += `AUTOLOADER: ${vehicleData.autoloader}\n`;
+            text += `ATGM SYSTEM: ${vehicleData.atgmSystem}\n`;
+            text += `PAYLOAD CAPACITY: ${vehicleData.payloadCapacity}\n`;
+            text += `SENSOR SYSTEMS: ${vehicleData.sensorSystems}\n`;
+            text += `DESCRIPTION: ${vehicleData.description}`;
+            
+            document.getElementById('exportResult').innerHTML = `<pre>${text}</pre>`;
+        }
+
+        // Function to export vehicle as JSON
+        function exportAsJSON() {
+            const vehicleData = getCurrentVehicleData();
+            if (!vehicleData) {
+                document.getElementById('exportResult').innerHTML = "<p>No vehicle data to export. Generate a vehicle first.</p>";
+                return;
+            }
+            
+            const json = JSON.stringify(vehicleData, null, 2);
+            document.getElementById('exportResult').innerHTML = `<pre>${json}</pre>`;
+        }
+
+        // Function to generate a vehicle card
+        function generateVehicleCard() {
+            const vehicleData = getCurrentVehicleData();
+            if (!vehicleData) {
+                document.getElementById('exportResult').innerHTML = "<p>No vehicle data to export. Generate a vehicle first.</p>";
+                return;
+            }
+            
+            const cardHTML = `
+                <div style="border: 2px solid #444; border-radius: 10px; padding: 20px; background: #252525; margin: 10px 0;">
+                    <h3 style="margin-top: 0; color: #e0e0e0;">${vehicleData.name}</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>Class:</strong> ${vehicleData.class}</div>
+                        <div><strong>Weight:</strong> ${vehicleData.weight} tons</div>
+                        <div><strong>Speed:</strong> ${vehicleData.maxSpeed} km/h</div>
+                        <div><strong>Range:</strong> ${vehicleData.operationalRange} km</div>
+                        <div><strong>Crew:</strong> ${vehicleData.crewSize}</div>
+                        <div><strong>Armament:</strong> ${vehicleData.mainArmament}</div>
+                    </div>
+                    <p style="margin-top: 15px; font-style: italic;">${vehicleData.description}</p>
+                </div>
+            `;
+            
+            document.getElementById('exportResult').innerHTML = cardHTML;
+        }
+
+        // Function to get current vehicle data
+        function getCurrentVehicleData() {
+            const vehicleDetails = document.getElementById('vehicleDetails');
+            if (!vehicleDetails.innerHTML || vehicleDetails.innerHTML.includes('Select options')) {
+                return null;
+            }
+            
+            // This would need to be implemented to extract data from the displayed vehicle
+            // For now, we'll return a placeholder
+            return {
+                name: "Sample Vehicle",
+                class: "Main Battle Tank",
+                era: "Modern",
+                faction: "Western",
+                rarity: "Common",
+                weight: "60",
+                crewSize: 4,
+                maxSpeed: 70,
+                operationalRange: 500,
+                mainArmament: "120mm smoothbore gun",
+                secondaryWeapons: "7.62mm coaxial MG, 12.7mm AA HMG",
+                armorType: "Composite armor",
+                propulsionType: "Diesel engine",
+                autoloader: "Carousel autoloader",
+                atgmSystem: "Javelin",
+                payloadCapacity: "N/A",
+                sensorSystems: "Thermal imagers, Laser rangefinders",
+                description: "A standard issue main battle tank."
+            };
+        }
+
+        // Function to add vehicle to history
+        function addToHistory(vehicleData) {
+            if (!document.getElementById('enableHistory').checked) return;
+            
+            vehicleHistory.unshift(vehicleData);
+            if (vehicleHistory.length > 10) {
+                vehicleHistory.pop();
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        // Function to update history display
+        function updateHistoryDisplay() {
+            const historyContainer = document.getElementById('vehicleHistory');
+            if (vehicleHistory.length === 0) {
+                historyContainer.innerHTML = '<p>No vehicles generated yet.</p>';
+                return;
+            }
+            
+            historyContainer.innerHTML = vehicleHistory.map((vehicle, index) => `
+                <div class="history-item" onclick="loadVehicleFromHistory(${index})">
+                    <strong>${vehicle.name}</strong> - ${vehicle.class} (${vehicle.weight} tons)<br>
+                    <small>${vehicle.era} • ${vehicle.faction} • ${vehicle.rarity}</small>
+                </div>
+            `).join('');
+        }
+
+        // Function to load vehicle from history
+        function loadVehicleFromHistory(index) {
+            const vehicle = vehicleHistory[index];
+            if (vehicle) {
+                // This would need to be implemented to populate the form with the vehicle data
+                alert(`Loading ${vehicle.name} from history. This feature would populate the form with the vehicle's data.`);
+            }
+        }
+
+        // Function to randomize all options
+        function randomizeAll() {
+            const classes = Object.keys(vehicleWeights);
+            const eras = Object.keys(armorTypes);
+            const factions = Object.keys(manufacturerNames);
+            const rarities = ["Common", "Uncommon", "Rare", "Elite", "Legendary", "Artifact"];
+            
+            document.getElementById('vehicleClass').value = getRandomItem(classes);
+            document.getElementById('eraSelect').value = getRandomItem(eras);
+            document.getElementById('factionSelect').value = getRandomItem(factions);
+            document.getElementById('raritySelect').value = getRandomItem(rarities);
+            document.getElementById('vehicleName').value = '';
+            
+            generateVehicle();
+        }
+
+        // Main function to generate a vehicle
+        function generateVehicle() {
+            const vehicleClass = document.getElementById('vehicleClass').value;
+            const era = document.getElementById('eraSelect').value;
+            const faction = document.getElementById('factionSelect').value;
+            const rarity = document.getElementById('raritySelect').value;
+            const customName = document.getElementById('vehicleName').value;
+            
+            // Generate vehicle attributes
+            const name = customName || generateVehicleName(faction, vehicleClass, rarity);
+            const crewSize = generateCrewSize(vehicleClass);
+            const weight = generateVehicleWeight(vehicleClass);
+            const maxSpeed = generateMaxSpeed(vehicleClass);
+            const operationalRange = generateOperationalRange(vehicleClass);
+            const payloadCapacity = generatePayloadCapacity(vehicleClass);
+            const armorType = getRandomItem(armorTypes[era]);
+            const propulsionType = getRandomItem(propulsionTypes[vehicleClass]);
+            const mainArmament = getRandomItem(mainArmaments[vehicleClass]);
+            const secondaryWeapons = getRandomItem(secondaryWeapons[vehicleClass]);
+            const autoloader = getRandomItem(autoloaderTypes[vehicleClass]);
+            const atgmSystem = getRandomItem(atgmOptions[era]);
+            const sensorSystems = getRandomItem(sensorSystems[era]);
+            
+            // Generate description if enabled
+            const enableDescriptions = document.getElementById('enableDescriptions').checked;
+            const description = enableDescriptions ? generateVehicleDescription({
+                name, class: vehicleClass, weight, maxSpeed, operationalRange, 
+                crewSize, era, rarity, faction
+            }) : '';
+            
+            // Create vehicle data object
+            const vehicleData = {
+                name,
+                class: vehicleClass,
+                era,
+                faction,
+                rarity,
+                weight,
+                crewSize,
+                maxSpeed,
+                operationalRange,
+                payloadCapacity,
+                mainArmament,
+                secondaryWeapons,
+                armorType,
+                propulsionType,
+                autoloader,
+                atgmSystem,
+                sensorSystems,
+                description
+            };
+            
+            // Add to history
+            addToHistory(vehicleData);
+            
+            // Display the vehicle
+            displayVehicle(vehicleData);
+        }
+
+        // Function to display the generated vehicle
+        function displayVehicle(vehicleData) {
+            const vehicleDetails = document.getElementById('vehicleDetails');
+            
+            vehicleDetails.innerHTML = `
+                <div class="vehicle-card">
+                    <div class="vehicle-name">${vehicleData.name}</div>
+                    <div class="vehicle-image">Vehicle Visualization</div>
+                    <div class="vehicle-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Class</div>
+                            <div class="stat-value">${vehicleData.class}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Era</div>
+                            <div class="stat-value">${vehicleData.era}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Faction</div>
+                            <div class="stat-value">${vehicleData.faction}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Rarity</div>
+                            <div class="stat-value">${vehicleData.rarity}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Weight</div>
+                            <div class="stat-value">${vehicleData.weight} tons</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Crew Size</div>
+                            <div class="stat-value">${vehicleData.crewSize}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Max Speed</div>
+                            <div class="stat-value">${vehicleData.maxSpeed} km/h</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Operational Range</div>
+                            <div class="stat-value">${vehicleData.operationalRange} km</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Payload Capacity</div>
+                            <div class="stat-value">${vehicleData.payloadCapacity}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Main Armament</div>
+                            <div class="stat-value">${vehicleData.mainArmament}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Secondary Weapons</div>
+                            <div class="stat-value">${vehicleData.secondaryWeapons}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Armor Type</div>
+                            <div class="stat-value">${vehicleData.armorType}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Propulsion</div>
+                            <div class="stat-value">${vehicleData.propulsionType}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Autoloader</div>
+                            <div class="stat-value">${vehicleData.autoloader}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">ATGM System</div>
+                            <div class="stat-value">${vehicleData.atgmSystem}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Sensor Systems</div>
+                            <div class="stat-value">${vehicleData.sensorSystems}</div>
+                        </div>
+                    </div>
+                    ${vehicleData.description ? `<div class="vehicle-description">${vehicleData.description}</div>` : ''}
+                </div>
             `;
         }
+
+        // Initialize the page
+        window.onload = function() {
+            // Set up event listeners
+            document.getElementById('detailLevel').addEventListener('input', function() {
+                document.getElementById('detailLevelValue').textContent = this.value;
+            });
+            
+            // Initialize history display
+            updateHistoryDisplay();
+        };
     </script>
 </body>
 </html>
